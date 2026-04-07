@@ -11,7 +11,7 @@ npm run dev
 ```
 
 - 前端：<http://localhost:5173>（`/api` 会代理到本机 BFF）
-- BFF：<http://localhost:3001>（`GET /health`、`GET /api/hello` 转发远端 `GET /hello`、`GET /api/common/hello` 等）
+- BFF：<http://localhost:4001>（`GET /health`、`GET /api/hello` 转发远端 `GET /hello`、`GET /api/common/hello` 等）
 
 ## 生产构建与启动
 
