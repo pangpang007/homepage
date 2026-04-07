@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import styles from "./Home.module.css";
+import styles from "./index.module.less";
 
 type HelloState =
   | { status: "idle" }

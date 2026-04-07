@@ -1,4 +1,4 @@
-import styles from "./About.module.css";
+import styles from "./index.module.less";
 
 export function About() {
   return (
