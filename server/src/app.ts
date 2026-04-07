@@ -1,13 +1,11 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import { registerRoutersFromDir } from "./utils/registerApiRouters.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, "../.env") });
 
 const BACKEND_URL =

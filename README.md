@@ -50,3 +50,5 @@ NODE_ENV=production npm start
 本地用 Vercel CLI 预览：`npx vercel` 链接项目后执行 `npx vercel dev`（需已登录 CLI）。
 
 **说明**：在 Vercel 上静态页面由 CDN 提供，BFF 不托管 `client/dist`；本地 `NODE_ENV=production npm start` 仍可由单个 Node 进程同时托管静态资源 + API。
+
+**Serverless 与本地差异**：Vercel 会把 `api/*.ts` 编成 CommonJS（`require`）。`server` 侧也编译为 CommonJS，才能被 `require("../server/dist/app.js")` 正常加载；若曾出现 `FUNCTION_INVOCATION_FAILED`，多与 ESM/CJS 混用或动态路由加载方式有关（当前仓库已按此对齐）。
