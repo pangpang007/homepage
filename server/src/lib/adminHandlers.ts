@@ -4,19 +4,19 @@ import {
   adminSessionCookieBaseOptions,
   adminSessionCookieSetOptions,
 } from "../constants/admin.js";
-import { getAdminTokenFromRequest } from "../utils/adminToken.js";
 import {
+  adminLogin,
+  adminRegister,
   parseAdminLoginJson,
-  postAdminLogin,
-  postAdminRegister,
-} from "./adminUpstream.js";
+} from "../services/admin.js";
+import { getAdminTokenFromRequest } from "../utils/adminToken.js";
 
 export async function handleAdminRegister(
   req: Request,
   res: Response
 ): Promise<void> {
   try {
-    const r = await postAdminRegister(req.body);
+    const r = await adminRegister(req.body);
     const text = await r.text();
     const ct =
       r.headers.get("content-type") ?? "application/json; charset=utf-8";
@@ -31,7 +31,7 @@ export async function handleAdminLogin(
   res: Response
 ): Promise<void> {
   try {
-    const r = await postAdminLogin(req.body);
+    const r = await adminLogin(req.body);
     const text = await r.text();
     if (!r.ok) {
       const ct =

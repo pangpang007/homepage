@@ -7,7 +7,7 @@ async function main() {
   app.listen(PORT, () => {
     console.log(`BFF listening on http://localhost:${PORT}`);
     console.log(
-      `Local routes under /api/<segment>/... (from server/src/routers), then proxy → ${process.env.BACKEND_URL ?? "https://soupcircle-backend.vercel.app"}${process.env.BACKEND_STRIP_API_PREFIX === "true" ? " (strip /api)" : ""}`
+      `Local routes under /api/<segment>/... (from server/src/routers), then fetch-forward → ${process.env.BACKEND_URL ?? "https://soupcircle-backend.vercel.app"}${process.env.BACKEND_STRIP_API_PREFIX === "true" ? " (strip /api)" : ""}`
     );
   });
 }

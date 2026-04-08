@@ -3,16 +3,15 @@ import path from "node:path";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import { createProxyMiddleware } from "http-proxy-middleware";
+import { BACKEND_URL } from "./constants/backend.js";
+import { fetchBackendHello } from "./services/common.js";
+import {
+  BackendFetchError,
+  forwardGenericBffApi,
+} from "./utils/request.js";
 import { registerRoutersFromDir } from "./utils/registerApiRouters.js";
 
 dotenv.config({ path: path.join(__dirname, "../.env") });
-
-const BACKEND_URL =
-  process.env.BACKEND_URL?.replace(/\/$/, "") ||
-  "https://soupcircle-backend.vercel.app";
-
-const STRIP_API_PREFIX = process.env.BACKEND_STRIP_API_PREFIX === "true";
 
 /** Vercel 上由 CDN 托管 client/dist，仅 serverless 处理 /api；本地生产仍可由 Express 托管静态资源 */
 const isVercel = process.env.VERCEL === "1";
@@ -39,7 +38,11 @@ export async function createApp(): Promise<express.Express> {
    */
   if (isVercel) {
     app.use((req, _res, next) => {
-      const u = req.url ?? "";
+      let u = req.url ?? "";
+      if (u !== "" && !u.startsWith("/")) {
+        u = `/${u}`;
+        req.url = u;
+      }
       if (u === "" || u === "/" || u.startsWith("/api")) {
         next();
         return;
@@ -64,48 +67,54 @@ export async function createApp(): Promise<express.Express> {
 
   const apiRouter = express.Router();
 
+  /**
+   * 部分 Serverless 入口里，`app.use("/api", apiRouter)` 之后 `req.url` 仍可能带一层 `/api/...`，
+   * 导致无法匹配 `use("/admin", ...)` 等子路由，请求落入兜底代理并被 pathRewrite 成后端 `/api/admin/...`
+   *（而后端实际是 `/admin/...`），表现为 404。此处统一剥掉多余前缀。
+   */
+  apiRouter.use((req, _res, next) => {
+    const raw = req.url ?? "";
+    const qIdx = raw.indexOf("?");
+    const pathPart = qIdx === -1 ? raw : raw.slice(0, qIdx);
+    const query = qIdx === -1 ? "" : raw.slice(qIdx);
+    if (pathPart === "/api" || pathPart.startsWith("/api/")) {
+      const stripped =
+        pathPart === "/api" ? "/" : pathPart.slice("/api".length) || "/";
+      req.url = stripped + query;
+    }
+    next();
+  });
+
   apiRouter.get("/health", (_req, res) => {
     res.json({ ok: true, service: "bff", scope: "api" });
   });
 
-  /** 显式请求远端后端的 GET /hello，供前端一键验证连通性（不经 pathRewrite 代理规则） */
+  /** 显式请求远端后端的 GET /hello，供前端一键验证连通性 */
   apiRouter.get("/hello", async (_req, res) => {
     try {
-      const target = `${BACKEND_URL}/hello`;
-      const r = await fetch(target, {
-        headers: { Accept: "text/plain,*/*" },
-      });
+      const r = await fetchBackendHello();
       const text = await r.text();
       const ct =
         r.headers.get("content-type") || "text/plain; charset=utf-8";
       res.status(r.status).set("Content-Type", ct).send(text);
-    } catch {
-      res
-        .status(502)
-        .type("text/plain; charset=utf-8")
-        .send("BFF: 无法连接后端 " + BACKEND_URL + "/hello");
+    } catch (e) {
+      if (e instanceof BackendFetchError) {
+        res
+          .status(502)
+          .type("text/plain; charset=utf-8")
+          .send("BFF: 无法连接后端 " + BACKEND_URL + "/hello");
+        return;
+      }
+      throw e;
     }
   });
 
   await registerRoutersFromDir(apiRouter);
 
-  apiRouter.use(
-    createProxyMiddleware({
-      target: BACKEND_URL,
-      changeOrigin: true,
-      pathRewrite: STRIP_API_PREFIX
-        ? undefined
-        : (pathname) =>
-            pathname === "/" || pathname === "" ? "/api" : `/api${pathname}`,
-      on: {
-        proxyReq: (_proxyReq, req) => {
-          if (process.env.NODE_ENV !== "production") {
-            console.log(`[BFF] ${req.method} ${req.url} → ${BACKEND_URL}`);
-          }
-        },
-      },
-    })
-  );
+  apiRouter.use((req, res, next) => {
+    forwardGenericBffApi(req, res).catch(next);
+  });
+
   app.use("/api", apiRouter);
 
   const serveStatic =

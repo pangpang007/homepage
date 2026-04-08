@@ -1,7 +1,3 @@
-export const BACKEND_URL =
-  process.env.BACKEND_URL?.replace(/\/$/, "") ||
-  "https://soupcircle-backend.vercel.app";
-
 export const ADMIN_TOKEN_COOKIE_NAME =
   process.env.ADMIN_TOKEN_COOKIE_NAME ?? "admin_token";
 

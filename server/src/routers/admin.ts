@@ -5,7 +5,7 @@ import {
   handleAdminRegister,
   handleAdminSession,
 } from "../lib/adminHandlers.js";
-import { adminUpstreamProxy } from "../lib/adminProxy.js";
+import { forwardProtectedAdmin } from "../services/admin.js";
 import { adminRequireTokenForProtectedPaths } from "../middleware/adminAuth.js";
 
 const router = Router();
@@ -16,6 +16,8 @@ router.post("/logout", handleAdminLogout);
 router.get("/session", handleAdminSession);
 
 router.use(adminRequireTokenForProtectedPaths);
-router.use(adminUpstreamProxy);
+router.use((req, res, next) => {
+  forwardProtectedAdmin(req, res).catch(next);
+});
 
 export default router;
