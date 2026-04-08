@@ -32,6 +32,8 @@ NODE_ENV=production npm start
 - `server/` — Express BFF（`src/routers` 各模块路由，`src/utils` 含 `mountApiSegment` 与 `registerRoutersFromDir`）
 - `api/[[...path]].ts` — Vercel Serverless 入口，复用 `server` 编译产物中的 `createApp`
 
+更完整的结构说明、路由约定与环境变量汇总见 [`docs/PROJECT.md`](docs/PROJECT.md)。
+
 ## 部署到 Vercel
 
 1. 把本仓库推送到 **GitHub / GitLab / Bitbucket**（或 Vercel 支持的 Git 托管）。
