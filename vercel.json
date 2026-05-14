@@ -1,15 +1,11 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "outputDirectory": "client/dist",
-  "framework": null,
-  "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
-  ],
-  "functions": {
-    "api/[[...path]].ts": {
-      "includeFiles": "server/dist/**"
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
     }
-  }
+  ]
 }

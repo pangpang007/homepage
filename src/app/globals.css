@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+:root {
+  --bg-root: #0f0f23;
+  --bg-elevated: rgba(30, 27, 75, 0.45);
+  --fg: #f8fafc;
+  --fg-muted: #94a3b8;
+  --accent: #8b5cf6;
+  --accent-soft: #a78bfa;
+  --gold: #fbbf24;
+  --border-strong: #4c1d95;
+  --glow: rgba(139, 92, 246, 0.35);
+}
+
+@theme inline {
+  --color-root: var(--bg-root);
+  --color-elevated: var(--bg-elevated);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-gold: var(--gold);
+  --color-border-strong: var(--border-strong);
+  --font-sans: var(--font-exo2), ui-sans-serif, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", sans-serif;
+  --font-display: var(--font-orbitron), ui-sans-serif, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  background-color: var(--bg-root);
+  color: var(--fg);
+  font-family: var(--font-sans);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Subtle grid + vignette (decorative only) */
+.bg-web3-mesh {
+  background-color: var(--bg-root);
+  background-image: radial-gradient(
+      ellipse 120% 80% at 50% -20%,
+      rgba(139, 92, 246, 0.22),
+      transparent 55%
+    ),
+    linear-gradient(rgba(167, 139, 250, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(167, 139, 250, 0.06) 1px, transparent 1px);
+  background-size: 100% 100%, 48px 48px, 48px 48px;
+}
+
+.glass-card {
+  background: var(--bg-elevated);
+  border: 1px solid color-mix(in srgb, var(--border-strong) 55%, transparent);
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.12),
+    0 18px 50px -24px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.glass-nav {
+  background: color-mix(in srgb, var(--bg-root) 72%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-soft) 28%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--accent-soft);
+  outline-offset: 3px;
+}
